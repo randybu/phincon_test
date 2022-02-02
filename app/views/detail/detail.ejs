@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="/css/pokeball.css">
+
+    <title>Pokemon Detail - <%- pokemon.name %></title>
+  </head>
+  <body>
+    
+    <div style="background-color: #343a40;">
+      <div class="col-lg-8" style="margin-left: auto; margin-right: auto;">
+        <%- include('../component/navbar') %>
+
+        <div class="col-lg-5" style="margin-left: auto; margin-right: auto;">
+          <h1 class="text-center text-white" style="text-transform: capitalize;"><%- pokemon.name %></h1>
+          <input type="hidden" id="pokemon_id" value="<%- pokemon.id %>">
+          <input type="hidden" id="pokemon_name" value="<%- pokemon.name %>">
+
+          <div class="row">
+
+            <div class="card" style="width: 100%;">
+              <img class="card-img-top" src="<%- pokemon.sprites.front_default%>" alt="Card image cap">
+              <div class="card-body">
+                <div class="row">
+                  <div class="col-lg-12 mb-4">
+                    <button type="button" data-toggle="modal" data-target="#confirmation" class="btn btn-danger" id="catch_button" style="width: 100%;">
+                      <strong>CATCH!</strong> 
+                      <img src="/image/pokeball.png" alt="" style="height: 40px;">
+                    </button>
+                  </div>
+
+                  <div class="col-lg-6">
+                    <div class="card text-white bg-success mb-3">
+                      <div class="card-header"><strong>Moves</strong></div>
+                      <div class="card-body">
+                        <% for(let i = 0; i < pokemon.moves.length; i++){%>
+                        <p class="card-text" style="text-transform: capitalize;">
+                          - <%- pokemon.moves[i].move.name%>
+                        </p>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="card text-white bg-warning mb-3">
+                      <div class="card-header"><strong>Type</strong></div>
+                      <div class="card-body">
+                        <% for(let i = 0; i < pokemon.types.length; i++){%>
+                        <p class="card-text" style="text-transform: capitalize;">
+                          - <%- pokemon.types[i].type.name%>
+                        </p>
+                        <% } %>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+
+                <!-- <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p> -->
+              </div>
+            </div>
+          </div>
+      </div>
+      </div>
+
+
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="confirmation" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+      <div class="center-on-page">
+        <div class="pokeball">
+          <div class="pokeball__button"></div>
+        </div>
+      </div>      
+    </div>
+
+    
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script>
+
+      $("#catch_button").click(function(){
+        setTimeout(() => {catch_pokemon();}, 3000);
+      })
+
+      function stopAnimation(element){
+          $(element).css("-webkit-animation", "none");
+          $(element).css("-moz-animation", "none");
+          $(element).css("-ms-animation", "none");
+          $(element).css("animation", "none");
+      }
+
+      function catch_pokemon(){
+        stopAnimation('.pokeball')
+        stopAnimation('.pokeball__button')
+
+        // $(".pokeball").stop();
+        // $(".pokeball__button").stop();
+        $.ajax({
+            method: "POST",
+            url: "/detail/catch",
+            data: {
+              id: $("#pokemon_id").val(),
+              name: $("#pokemon_name").val()
+            }
+        }).done(function (res) {
+          if(res.catched){
+            $('.pokeball__button').css({"background": "palegreen"})
+            window.location.href = '/my_pokemon'
+
+          }else{
+            // $("#confirmation").modal('hide');
+            $('.pokeball__button').css({"background": "red"})
+            window.location.href = '/detail/'+$("#pokemon_id").val()
+
+
+          }
+        });
+      }
+
+
+    </script>
+  </body>
+</html>

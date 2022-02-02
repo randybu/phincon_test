@@ -1,0 +1,135 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <title>My Pokemon</title>
+  </head>
+  <body style="background-color: #343a40;">
+        <div class="col-lg-8" style="margin-left: auto; margin-right: auto;">
+            <%- include('../component/navbar') %>
+            <input type="hidden" id="pk">
+            <h1 class="text-center text-light">My Pokemon</h1>
+            <div class="row">
+                <% if(result.length == 0){%> <h5 class="text-center text-light">Empty List</h5> <%}%>
+                <% for(let i = 0; i<result.length; i++){ %>
+                    <div class="col-lg-3 col-sm-12 mb-4">
+                        <div class="card" style="width: 100%">
+                            <img class="card-img-top" src="https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/<%- result[i].id %>.png" alt="Card image cap">
+                            <div class="card-body text-center" style="text-transform: capitalize;">
+                              <h5 class="card-title"><%- result[i].real_name %></h5>
+                              <p class="card-description">Nickname: <%- result[i].nickname%></p>
+
+                              <% if(result[i].nickname != ""){%>
+                                <a href="#" type="button" onclick="update_nickname_form('<%- result[i].nickname%>', '<%- result[i].pk %>')" class="btn btn-warning" id="update_nickname_button">Update Nickname</a>
+                              <%} else {%>
+                                <a href="#" type="button" onclick="update_nickname_form('<%- result[i].nickname%>', '<%- result[i].pk %>')" class="btn btn-success" id="update_nickname_button">Set Nickname</a>
+                              <%}%>
+                              <a href="#" type="button" onclick="release_pokemon('<%- result[i].pk %>')" class="btn btn-danger" id="release_pokemon">Release</a>
+
+                            </div>
+                          </div>
+                    </div>
+                <% } %>
+            </div>
+    
+    <!-- Modal -->
+    <div class="modal fade" id="nickname_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="exampleModalLongTitle">Update Pokemon Name</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            <div class="form-group">
+              <label for="nickname">Nickname</label>
+              <input type="text" class="form-control" id="nickname" aria-describedby="emailHelp" placeholder="Enter nickname">
+              <small id="emailHelp" class="form-text text-danger"></small>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" id="submit_update_nickname">Update Nickname</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    
+
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+    <script>
+      function isPrime(num) {
+        for(var i = 2; i < num; i++)
+          if(num % i === 0) return false;
+        return num > 1;
+      }
+
+      function update_nickname_form(nickname, pk){
+        $("#nickname").val(nickname)
+        $("#pk").val(pk)
+
+        $("#nickname_modal").modal('toggle')
+      }
+
+      function release_pokemon(pk){
+        $.ajax({
+            method: "POST",
+            url: "/my_pokemon/random_number",
+            data: {
+            }
+        }).done(function (res) {
+          if(res.error == 0){
+            if(isPrime(res.data)){
+              $.ajax({
+                  method: "POST",
+                  url: "/my_pokemon/release",
+                  data: {
+                    pk: pk
+                  }
+              }).done(function (res) {
+                if(res.error == 0){
+                  window.location.href = '/my_pokemon'
+                }
+              });
+            }else{
+              alert("failed to release")
+            }
+          }
+        });
+      }
+
+      $("#submit_update_nickname").click(function(){
+        $.ajax({
+            method: "POST",
+            url: "/my_pokemon/update_nickname",
+            data: {
+              pk: $("#pk").val(),
+              nickname: $("#nickname").val()
+            }
+        }).done(function (res) {
+          if(res.error == 0){
+            window.location.href = '/my_pokemon'
+          }else{
+            $("#emailHelp").html(res.message) 
+          }
+        });
+      })
+
+
+
+    </script>
+  </body>
+</html>
